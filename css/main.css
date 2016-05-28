@@ -1,0 +1,36 @@
+body {
+	font-size: 120%;
+}
+audio {
+	padding: 2%;
+	width: 100%;
+	box-sizing: border-box;
+}
+#songList {
+	list-style-type: none;
+}
+#songList li {
+	padding-bottom: 2px;
+}
+.dlA {
+	margin-right: 10px;
+}
+.dlIcon {
+	border-radius: 10px;
+	height: 16px;
+	/* oben, rechts, unten, links */
+	/*padding: 1px;*/
+}
+.dlIcon:hover {
+	background-color: #a0ceff;
+}
+.playA {
+	cursor: pointer;
+	padding: 2px;
+}
+.playA.active {
+	background-color: #ffdca2;
+}
+.playA:hover {
+	text-decoration: underline;
+}
