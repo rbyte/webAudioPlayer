@@ -1,35 +1,37 @@
 body {
 	font-size: 120%;
 }
+h2 {
+	margin: 2%;
+}
 audio {
-	padding: 2%;
+	padding: 1% 2%;
 	width: 100%;
 	box-sizing: border-box;
 }
 #songList {
-	list-style-type: none;
+	margin: 1% 2%;
 }
-#songList li {
+#songList tr {
 	padding-bottom: 2px;
 }
-.dlA {
-	margin-right: 10px;
+#songList td {
+	padding-right: 10px;
+}
+.duration {
+	color: grey;
+	text-align: right;
 }
 .dlIcon {
 	border-radius: 10px;
 	height: 16px;
-	/* oben, rechts, unten, links */
-	/*padding: 1px;*/
 }
-.dlIcon:hover {
-	background-color: #a0ceff;
+.dlIcon:hover, .playA.active {
+	background-color: #c1dfff;
 }
 .playA {
 	cursor: pointer;
 	padding: 2px;
-}
-.playA.active {
-	background-color: #ffdca2;
 }
 .playA:hover {
 	text-decoration: underline;

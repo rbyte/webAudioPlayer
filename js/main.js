@@ -1,6 +1,11 @@
+/*
+ * Matthias Graf 2016
+ * GNU AGPL v3
+ * matthias.graf@mgrf.de
+ * */
 
 const audioDir = "audio/"
-var songListUl = document.getElementById("songList")
+var table = document.getElementById("songList")
 var player = document.getElementById("audio")
 var activeTrack
 var files
@@ -43,6 +48,22 @@ function playNext() {
 		files[idx+1].play()
 }
 
+function toHHMMSS(durationInSeconds) {
+	var hours = Math.floor(durationInSeconds / 60/60)
+	var minutes = Math.floor((durationInSeconds - 60*60*hours) / 60)
+	var seconds = Math.floor(durationInSeconds - 60*60*hours - 60*minutes)
+	
+	var result = ""
+	if (hours > 0) {
+		result += hours+":"
+		result += ('00'+minutes).slice(-2)+":"
+	} else {
+		result += minutes+":"
+	}
+	result += ('00'+seconds).slice(-2)
+	return result
+}
+
 function init() {
 	XHR("listFiles.php", function(xhr) {
 		files = JSON.parse(xhr.responseText)
@@ -50,22 +71,22 @@ function init() {
 		
 		for (f of files) {
 			var url = audioDir+f.name
-			// preload ...
-			f.audio = new Audio(url)
-			f.play = function() {
-				setActiveTrack(this)
-				// onmetadataupdate?
-				playPause()
-			}
-			var li = songListUl.appendChild(document.createElement("li"))
-			var dlA = li.appendChild(document.createElement("a"))
+			var tr = table.appendChild(document.createElement("tr"))
+			
+			f.durationSpan = tr.appendChild(document.createElement("td"))
+			f.durationSpan.classList.add("duration")
+			
+			var td2 = tr.appendChild(document.createElement("td"))
+			var dlA = td2.appendChild(document.createElement("a"))
 			dlA.setAttribute("href", url)
 			dlA.setAttribute("download", "")
 			dlA.classList.add("dlA")
 			var img = dlA.appendChild(document.createElement("img"))
 			img.setAttribute("src", "downloadIcon_Differenz.svg")
 			img.classList.add("dlIcon")
-			var a = li.appendChild(document.createElement("a"))
+			
+			var td3 = tr.appendChild(document.createElement("td"))
+			var a = td3.appendChild(document.createElement("a"))
 			a.classList.add("playA")
 			a.track = f
 			f.node = a
@@ -73,6 +94,20 @@ function init() {
 				this.track.play()
 			})
 			a.appendChild(document.createTextNode(f.name))
+			
+			f.play = function() {
+				setActiveTrack(this)
+				// onmetadataupdate?
+				playPause()
+			}
+			
+			// preload & metadata
+			f.audio = new Audio(url)
+			f.audio.track = f
+			f.audio.addEventListener("loadedmetadata", function() {
+				console.assert(this.duration > 0)
+				this.track.durationSpan.appendChild(document.createTextNode(toHHMMSS(this.duration)))
+			})
 		}
 		
 		if (files.length > 0) {
