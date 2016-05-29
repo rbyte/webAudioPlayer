@@ -4,9 +4,12 @@
  * matthias.graf@mgrf.de
  * */
 
-const audioDir = "audio/"
-var table = document.getElementById("songList")
-var player = document.getElementById("audio")
+var AudioPlayer = (function() {
+var AudioPlayer = {}
+	
+var config
+var table
+var player
 var activeTrack
 var files
 
@@ -38,7 +41,7 @@ function setActiveTrack(file) {
 		activeTrack.node.classList.remove("active")
 	activeTrack = file
 	file.node.classList.add("active")
-	player.setAttribute("src", audioDir+file.name)
+	player.setAttribute("src", config.audioDir+file.name)
 }
 
 function playNext() {
@@ -64,13 +67,39 @@ function toHHMMSS(durationInSeconds) {
 	return result
 }
 
-function init() {
+function init(customConfig = {}) {
+	config = { // defaults
+		audioDir: "audio/",
+		autoPlayAfterInit: false,
+		title: false,
+		rootNode: document.body
+	}
+	
+	for (var key in customConfig)
+		config[key] = customConfig[key]
+	
+	if (config.title) {
+		var h2 = config.rootNode.appendChild(document.createElement("h2"))
+		h2.appendChild(document.createTextNode(config.title))
+	}
+	
+	player = config.rootNode.appendChild(document.createElement("audio"))
+	player.setAttribute("id", "audio")
+	player.setAttribute("controls", "")
+	player.setAttribute("preload", "auto")
+	
+	table = config.rootNode.appendChild(document.createElement("table"))
+	table.setAttribute("id", "songList")
+	
+	// table = document.getElementById("songList")
+	// player = document.getElementById("audio")
+	
 	XHR("listFiles.php", function(xhr) {
 		files = JSON.parse(xhr.responseText)
 		files = files.filter(f => f.name.match(/\.(ogg|mp3|wave|wav|webm|m4a|aac|mp4)$/i))
 		
 		for (f of files) {
-			var url = audioDir+f.name
+			var url = config.audioDir+f.name
 			var tr = table.appendChild(document.createElement("tr"))
 			
 			f.durationSpan = tr.appendChild(document.createElement("td"))
@@ -111,8 +140,10 @@ function init() {
 		}
 		
 		if (files.length > 0) {
-			activeTrack = files[0]
-			activeTrack.play()
+			// activeTrack = files[0]
+			setActiveTrack(files[0])
+			if (config.autoPlayAfterInit)
+				activeTrack.play()
 		} else {
 			console.log("error: no files found")
 		}
@@ -127,8 +158,9 @@ function init() {
 	player.addEventListener("ended", function() {
 		playNext()
 	})
-	
-	console.log("done")
 }
 
-init()
+AudioPlayer.init = init
+
+return AudioPlayer	
+})()
